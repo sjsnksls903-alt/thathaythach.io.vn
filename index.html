@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Thật Hay Thách - Party Game Việt Nam | Truth or Dare Online</title>
+    <meta name="description" content="Trò chơi Thật Hay Thách online miễn phí cho nhóm bạn bè, cặp đôi, team building và trẻ em. Hàng trăm câu hỏi và thử thách thú vị!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=20260414c">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#22d3ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+</head>
+
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- ===== TOP HEADER ===== -->
+    <header class="header" id="appHeader">
+        <h1 class="logo">🎮 Thật Hay Thách</h1>
+        <div class="header-right">
+            <div class="game-mode-badge" id="currentModeBadge">Chọn phiên bản</div>
+            <button class="btn-icon" id="toggleSound" title="Bật/Tắt Âm Thanh" aria-label="Âm thanh">🔊</button>
+            <button class="btn-icon" id="openHistory" title="Lịch Sử" aria-label="Lịch sử">📜</button>
+            <button class="btn-icon" id="toggleMCMode" title="Chế Độ MC" aria-label="Chế độ MC">🎤</button>
+        </div>
+    </header>
+
+    <!-- MC Mode Banner -->
+    <div class="mc-banner" id="mcModeBanner">
+        <span>🎤 CHẾ ĐỘ MC — Chỉ bạn thấy</span>
+        <button class="btn-mc-hide" id="hideAnswerBtn">👁️ Ẩn/Hiện</button>
+    </div>
+
+    <!-- ===== STEP PROGRESS BAR ===== -->
+    <div class="step-bar-wrap">
+        <nav class="step-bar" role="tablist" aria-label="Các bước chơi game">
+            <button class="step-btn active" data-step="0" role="tab" aria-selected="true">
+                <span class="step-dot"></span>
+                <span class="step-lbl">Khởi Động</span>
+            </button>
+            <div class="step-line"></div>
+            <button class="step-btn" data-step="1" role="tab" aria-selected="false">
+                <span class="step-dot"></span>
+                <span class="step-lbl">Thật / Thách</span>
+            </button>
+            <div class="step-line"></div>
+            <button class="step-btn" data-step="2" role="tab" aria-selected="false">
+                <span class="step-dot"></span>
+                <span class="step-lbl">Đặc Biệt</span>
+            </button>
+            <div class="step-line"></div>
+            <button class="step-btn" data-step="3" role="tab" aria-selected="false">
+                <span class="step-dot"></span>
+                <span class="step-lbl">Kết Thúc</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="app-main" id="appMain">
+
+        <!-- ── STEP 0 : Setup ── -->
+        <section class="screen active" id="step0" role="tabpanel">
+
+            <!-- Mode Selection -->
+            <div class="section-label">🎲 Chọn Phiên Bản</div>
+            <div class="mode-grid">
+                <button class="mode-card" data-mode="thach-nang">
+                    <span class="mode-icon">😈</span>
+                    <span class="mode-name">Thách Nặng</span>
+                    <span class="mode-sub">Bạn bè thân</span>
+                </button>
+                <button class="mode-card" data-mode="tre-em">
+                    <span class="mode-icon">👶</span>
+                    <span class="mode-name">Trẻ Em</span>
+                    <span class="mode-sub">Vui nhộn, dễ thương</span>
+                </button>
+                <button class="mode-card" data-mode="team-building">
+                    <span class="mode-icon">🏢</span>
+                    <span class="mode-name">Team Building</span>
+                    <span class="mode-sub">Công ty, nhóm làm việc</span>
+                </button>
+                <button class="mode-card" data-mode="cap-doi">
+                    <span class="mode-icon">💘</span>
+                    <span class="mode-name">Cặp Đôi</span>
+                    <span class="mode-sub">Couple, hẹn hò</span>
+                </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span>👥 Người Chơi</span>
+            </div>
+
+            <!-- Player Count -->
+            <div class="player-count-row">
+                <span class="count-label">Số người</span>
+                <div class="count-ctrl">
+                    <button class="btn-cnt" id="decreaseTeam" aria-label="Giảm">−</button>
+                    <span class="cnt-val" id="teamCount">4</span>
+                    <button class="btn-cnt" id="increaseTeam" aria-label="Tăng">+</button>
+                </div>
+            </div>
+
+            <!-- Player Inputs -->
+            <div class="players-grid" id="teamsContainer"></div>
+
+            <!-- Contribute link -->
+            <button class="btn-contribute-link" id="openContribute">✏️ Góp câu hỏi cho game</button>
+
+            <!-- Fixed Bottom CTA -->
+            <div class="bottom-cta">
+                <button class="btn-start" id="startGame">
+                    <span>Bắt Đầu Game</span>
+                    <span class="btn-start-icon">🎮</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ── STEP 1 : Truth or Dare ── -->
+        <section class="screen" id="step1" role="tabpanel">
+
+            <!-- Player Turn Banner -->
+            <div class="turn-banner" id="playerTurnIndicator">
+                <span class="turn-tag">Đến lượt</span>
+                <span class="turn-avatar" id="currentPlayerAvatar">😊</span>
+                <span class="turn-name" id="currentPlayerName">Người chơi 1</span>
+            </div>
+
+            <!-- Question Card -->
+            <div class="q-card" id="questionCard">
+                <span class="q-badge" id="qBadge">Câu hỏi / Nhiệm vụ</span>
+                <p class="q-text" id="questionText">Chọn Thật hoặc Thách để bắt đầu!</p>
+            </div>
+
+            <!-- Truth / Dare Buttons -->
+            <div class="td-row">
+                <button class="btn-truth" id="randomQuestion">
+                    <span class="td-icon">💬</span>
+                    <span class="td-label">THẬT</span>
+                </button>
+                <button class="btn-dare" id="randomTask">
+                    <span class="td-icon">🔥</span>
+                    <span class="td-label">THÁCH</span>
+                </button>
+            </div>
+
+            <!-- Secondary Actions -->
+            <div class="secondary-row">
+                <button class="btn-sec btn-timer-sec" id="startTimer">⏱️ Đếm Giờ</button>
+                <button class="btn-sec btn-next-turn" id="nextTurn">➡️ Kế Tiếp</button>
+            </div>
+
+            <!-- Advance to next step -->
+            <button class="btn-advance" id="toStep2">Vòng Đặc Biệt →</button>
+        </section>
+
+        <!-- ── STEP 2 : Special Round ── -->
+        <section class="screen" id="step2" role="tabpanel">
+
+            <div class="screen-title">
+                <span class="title-icon">🌟</span>
+                <div>
+                    <h2>Vòng Đặc Biệt</h2>
+                    <p>Thách cao trào — Cơ hội đảo ngược!</p>
+                </div>
+            </div>
+
+            <!-- Special Card -->
+            <div class="q-card special-q-card" id="specialCard">
+                <span class="q-badge q-badge-special">⭐ Đặc Biệt</span>
+                <p class="q-text">Vòng cao trào!</p>
+            </div>
+
+            <!-- Power-up Buttons -->
+            <div class="power-row">
+                <button class="btn-power-up" id="doublePoints">✨ Nhân Đôi Điểm</button>
+                <button class="btn-power-up btn-steal" id="stealPoints">🔥 Cướp Điểm</button>
+            </div>
+
+            <!-- Draw Special Challenge -->
+            <button class="btn-draw" id="randomSpecial">🎲 Bốc Thách Đặc Biệt</button>
+
+            <button class="btn-advance" id="toStep3">Kết Thúc Game →</button>
+        </section>
+
+        <!-- ── STEP 3 : Results ── -->
+        <section class="screen" id="step3" role="tabpanel">
+
+            <div class="screen-title">
+                <span class="title-icon">🏆</span>
+                <div>
+                    <h2>Kết Thúc</h2>
+                    <p>Tổng kết và công bố người thắng!</p>
+                </div>
+            </div>
+
+            <!-- Winner Banner -->
+            <div class="winner-banner" id="winnerAnnouncement"></div>
+
+            <!-- Results Grid -->
+            <div class="results-grid" id="resultsContainer"></div>
+
+            <!-- Punishment Section -->
+            <div class="punishment-section">
+                <div class="punishment-header">😈 Hình Phạt Cho Đội Thua</div>
+                <div class="punishment-btns">
+                    <button class="btn-punish btn-punish-light"  data-level="light">😅 Nhẹ</button>
+                    <button class="btn-punish btn-punish-medium" data-level="medium">😰 Vừa</button>
+                    <button class="btn-punish btn-punish-heavy"  data-level="heavy">🔥 Nặng</button>
+                </div>
+                <div class="punishment-card glass-card" id="punishmentCard">
+                    <p>Nhấn chọn mức độ để bốc hình phạt!</p>
+                </div>
+            </div>
+
+            <button class="btn-replay" id="playAgain">🔄 Chơi Lại</button>
+        </section>
+
+    </main>
+
+    <!-- Score Panel (Floating) -->
+    <aside class="score-panel" id="scorePanel">
+        <h3>📊 Điểm</h3>
+        <div class="scores" id="scoresDisplay"></div>
+    </aside>
+
+    <!-- ────── MODALS ────── -->
+
+    <!-- Timer Modal -->
+    <div class="modal" id="timerModal" role="dialog" aria-modal="true" aria-label="Đếm giờ">
+        <div class="modal-box">
+            <button class="modal-close" id="closeTimer" aria-label="Đóng">✕</button>
+            <div class="timer-num" id="timerDisplay">60</div>
+            <div class="timer-opts">
+                <button class="timer-opt" id="timer30">30s</button>
+                <button class="timer-opt active" id="timer60">60s</button>
+                <button class="timer-opt" id="timer90">90s</button>
+            </div>
+            <button class="btn-modal-primary" id="timerStart">▶️ Bắt Đầu</button>
+        </div>
+    </div>
+
+    <!-- Score Edit Modal -->
+    <div class="modal" id="scoreModal" role="dialog" aria-modal="true" aria-label="Cập nhật điểm">
+        <div class="modal-box">
+            <button class="modal-close" id="closeScore" aria-label="Đóng">✕</button>
+            <h3 class="modal-title">📊 Cập Nhật Điểm</h3>
+            <div class="score-edit" id="scoreEdit"></div>
+        </div>
+    </div>
+
+    <!-- Contribute Modal -->
+    <div class="modal" id="contributeModal" role="dialog" aria-modal="true" aria-label="Góp câu hỏi">
+        <div class="modal-box modal-tall">
+            <button class="modal-close" id="closeContribute" aria-label="Đóng">✕</button>
+            <h3 class="modal-title">✏️ Góp Câu Hỏi</h3>
+            <p class="modal-sub">Chia sẻ ý tưởng để game thêm vui!</p>
+            <div class="form-stack">
+                <label class="form-label">Phiên Bản</label>
+                <select class="form-select" id="contributeMode">
+                    <option value="thach-nang">😈 Thách Nặng</option>
+                    <option value="tre-em">👶 Trẻ Em</option>
+                    <option value="team-building">🏢 Team Building</option>
+                    <option value="cap-doi">💘 Cặp Đôi</option>
+                </select>
+                <label class="form-label">Loại Nội Dung</label>
+                <select class="form-select" id="contributeType">
+                    <option value="questions">❓ Câu Hỏi</option>
+                    <option value="tasks">🎭 Nhiệm Vụ</option>
+                    <option value="challenges">⚡ Thử Thách</option>
+                    <option value="special">⭐ Đặc Biệt</option>
+                </select>
+                <label class="form-label">Nội Dung</label>
+                <textarea class="form-textarea" id="contributeContent" placeholder="Nhập câu hỏi hoặc thử thách của bạn..."></textarea>
+                <div class="contrib-stat">📊 Đã góp: <strong id="userContribCount">0</strong> câu</div>
+                <button class="btn-modal-primary" id="submitContribution">🚀 Gửi Góp Ý</button>
+            </div>
+            <div class="contrib-list" id="contributedList">
+                <div class="contrib-list-title">📝 Câu Đã Góp</div>
+                <div id="contributedItems"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal" id="historyModal" role="dialog" aria-modal="true" aria-label="Lịch sử">
+        <div class="modal-box modal-tall">
+            <button class="modal-close" id="closeHistory" aria-label="Đóng">✕</button>
+            <h3 class="modal-title">📜 Lịch Sử Ván Chơi</h3>
+            <div class="history-list" id="historyList"></div>
+            <div class="history-acts">
+                <button class="btn-ghost" id="clearHistory">🗑️ Xóa</button>
+                <button class="btn-ghost" id="exportHistory">📤 Xuất PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Punishment Modal -->
+    <div class="modal" id="punishmentModal" role="dialog" aria-modal="true" aria-label="Hình phạt">
+        <div class="modal-box">
+            <span class="punish-emoji" id="punishmentEmoji">😈</span>
+            <p class="punish-text" id="punishmentText">Hình phạt sẽ hiển thị ở đây</p>
+            <button class="btn-modal-primary" id="closePunishment">Đã Hiểu! 👍</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-wrap" id="toastContainer" aria-live="polite"></div>
+
+    <!-- Achievement Popup -->
+    <div class="achievement-popup" id="achievementPopup" aria-live="assertive">
+        <div class="achievement-box">
+            <span class="ach-icon" id="achievementIcon">🏅</span>
+            <span class="ach-title" id="achievementTitle">Thành Tựu Mới!</span>
+            <span class="ach-desc" id="achievementDesc">Bạn đã đạt được thành tựu</span>
+        </div>
+    </div>
+
+    <!-- Confetti -->
+    <div id="confetti" aria-hidden="true"></div>
+
+    <script src="app.js?v=20260414" charset="UTF-8"></script>
+    <script>
+        // ── PWA ──
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+
+        // ── Backward-compat shims for app.js ──
+        // 1. .step-btn elements also get .step class (app.js queries .step)
+        document.querySelectorAll('.step-btn[data-step]').forEach(btn => btn.classList.add('step'));
+
+        // 2. .screen also gets .game-section class (app.js queries .game-section)
+        document.querySelectorAll('.screen').forEach(el => el.classList.add('game-section'));
+
+        // 3. .btn-cnt also gets .btn-count (older CSS compat)
+        document.querySelectorAll('.btn-cnt').forEach(el => el.classList.add('btn-count'));
+
+        // 4. challengeCard was removed – create a hidden stub so app.js doesn't crash
+        if (!document.getElementById('challengeCard')) {
+            const stub = document.createElement('div');
+            stub.id = 'challengeCard';
+            stub.style.display = 'none';
+            document.body.appendChild(stub);
+        }
+
+        // 5. Old .btn-timer-control → map to .timer-opt
+        document.querySelectorAll('.timer-opt').forEach(el => el.classList.add('btn-timer-control'));
+
+        // 6. Fix timer-opts class → timer-controls (app.js references .timer-controls)
+        const timerOptsEl = document.querySelector('.timer-opts');
+        if (timerOptsEl) timerOptsEl.classList.add('timer-controls');
+
+        // 7. card-badge class inside questionCard (app.js sets innerHTML with card-badge, card-content, card-text)
+        //    The new .q-card already handles this via CSS cascades – nothing to do.
+
+        // 8. Ensure q-text style matches card-text (app.js writes innerHTML with card-text class)
+        //    Add CSS alias dynamically
+        const aliasStyle = document.createElement('style');
+        aliasStyle.textContent = `
+            .card-text { font-size: clamp(1.05rem,4vw,1.32rem); font-weight:700; line-height:1.65; text-align:center; color:var(--c-txt); }
+            .card-emoji { display:block; font-size:2.5rem; margin-bottom:10px; text-align:center; }
+            .card-badge { position:absolute; top:14px; left:14px; padding:4px 13px; border-radius:999px; background:var(--g-brand); font-size:.68rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:white; box-shadow:0 4px 14px rgba(34,211,238,.3); }
+            .card-badge.special { background:var(--g-gold); box-shadow:0 4px 14px rgba(251,191,36,.3); }
+            .card-content { display:flex; flex-direction:column; align-items:center; justify-content:center; padding-top:10px; }
+            .result-card { padding:16px 10px; background:var(--c-card); border:1px solid var(--c-border); border-radius:var(--r-lg); text-align:center; }
+            .result-card.winner { background:var(--g-brand); border:none; transform:scale(1.05); box-shadow:0 8px 26px rgba(34,211,238,.35); }
+            .result-name { font-size:.88rem; font-weight:800; margin-bottom:6px; }
+            .result-score { font-size:2rem; font-weight:900; }
+            .winner-text { font-size:1.1rem; font-weight:800; color:var(--cyan); text-align:center; margin-bottom:8px; }
+            .winner-name { font-size:1.8rem; font-weight:900; text-align:center; background:var(--g-brand); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+            /* Old CSS variables used in app.js inline styles → keep working */
+            :root { --accent-2: var(--violet); --accent-3: var(--orange); --accent-4: var(--pink); --gradient-1: var(--g-brand); --gradient-2: var(--g-teal); }
+            /* punishment-section area */
+            .punishment-section { background:var(--c-card); border:1px solid var(--c-border); border-radius:var(--r-xl); padding:16px; margin-bottom:16px; }
+            .punishment-levels { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+            /* turnPulse animation alias */
+            @keyframes turnPulse {
+                0%,100% { box-shadow:0 0 16px rgba(34,211,238,.18); }
+                50%      { box-shadow:0 0 32px rgba(34,211,238,.4); }
+            }
+            /* pulse alias used in timer */
+            @keyframes pulse {
+                0%,100% { transform:scale(1); }
+                50%      { transform:scale(1.1); }
+            }
+        `;
+        document.head.appendChild(aliasStyle);
+    </script>
+</body>
+
+</html>

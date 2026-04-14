@@ -1,0 +1,17 @@
+{
+  "name": "Thật Hay Thách",
+  "short_name": "Thật Thách",
+  "description": "Trò chơi Truth or Dare cho nhóm bạn bè, team building, cặp đôi và trẻ em",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#08111f",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
