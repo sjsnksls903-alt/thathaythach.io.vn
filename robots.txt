@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://thathaythach.io.vn/sitemap.xml
+Sitemap: https://thathaythach.online/sitemap.xml

@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(www\.)?thathaythach\.io\.vn$ [NC]
+RewriteRule ^(.*)$ https://thathaythach.online/$1 [R=301,L]
