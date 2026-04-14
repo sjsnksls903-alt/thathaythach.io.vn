@@ -1,7 +1,8 @@
-const CACHE_NAME = 'game-thach-dau-v3';
+const CACHE_NAME = 'game-thach-dau-v4';
 const urlsToCache = [
     './',
     './index.html',
+    './favicon.svg',
     './styles.css',
     './app.js',
     './manifest.json'

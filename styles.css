@@ -43,6 +43,11 @@
     --ease: cubic-bezier(.4,0,.2,1);
     --spring: cubic-bezier(.34,1.56,.64,1);
 
+    /* Button sizing */
+    --btn-h-sm: 40px;
+    --btn-h-md: 46px;
+    --btn-h-lg: 54px;
+
     /* Layout */
     --header-h:  56px;
     --stepbar-h: 52px;
@@ -669,6 +674,56 @@ body::before {
     box-shadow: none;
     transform: none;
     filter: grayscale(.15);
+}
+
+/* ============================================================
+   BUTTON DISPLAY OPTIMIZATION
+   ============================================================ */
+.btn-icon,
+.btn-cnt,
+.btn-score,
+.modal-close,
+.btn-delete-contrib {
+    min-width: var(--btn-h-sm);
+    min-height: var(--btn-h-sm);
+}
+
+.btn-contribute-link,
+.btn-sec,
+.btn-advance,
+.btn-power-up,
+.btn-punish,
+.btn-ghost,
+.timer-opt,
+.btn-mc-hide {
+    min-height: var(--btn-h-md);
+    line-height: 1.28;
+    white-space: normal;
+    letter-spacing: .01em;
+}
+
+.btn-start,
+.btn-draw,
+.btn-replay,
+.btn-modal-primary {
+    min-height: var(--btn-h-lg);
+    line-height: 1.2;
+}
+
+.btn-truth,
+.btn-dare {
+    min-height: 124px;
+    justify-content: center;
+}
+
+.td-label,
+.btn-power-up,
+.btn-punish,
+.btn-ghost,
+.btn-advance,
+.btn-sec,
+.btn-contribute-link {
+    text-wrap: balance;
 }
 
 /* ============================================================
@@ -1457,12 +1512,58 @@ button.btn-primary:active { transform:scale(.97); }
 }
 
 @media (max-width: 640px) {
+    .td-row,
+    .secondary-row,
+    .power-row,
+    .punishment-btns {
+        gap: 9px;
+    }
+
+    .btn-truth,
+    .btn-dare {
+        min-height: 116px;
+        padding: 14px 10px;
+    }
+
+    .td-icon {
+        font-size: 1.75rem;
+    }
+
+    .td-label {
+        font-size: .98rem;
+        letter-spacing: .05em;
+    }
+
+    .btn-sec,
+    .btn-power-up,
+    .btn-punish,
+    .btn-ghost,
+    .btn-advance {
+        font-size: .9rem;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .btn-start,
+    .btn-replay,
+    .btn-draw,
+    .btn-modal-primary {
+        min-height: 52px;
+    }
+
     .score-panel {
-        left: 12px;
-        right: 12px;
+        position: static;
         width: auto;
-        max-height: 30vh;
-        bottom: calc(10px + var(--safe-bot));
+        max-height: none;
+        margin: 10px 14px 14px;
+        right: auto;
+        bottom: auto;
+        z-index: auto;
+        overflow: visible;
+    }
+
+    .score-panel.visible {
+        animation: none;
     }
 
     .score-item {
@@ -1491,6 +1592,14 @@ button.btn-primary:active { transform:scale(.97); }
 
     .modal-box::before {
         display: none;
+    }
+
+    .btn-sec,
+    .btn-power-up,
+    .btn-punish,
+    .btn-ghost,
+    .btn-advance {
+        font-size: .95rem;
     }
 }
 
