@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260414c">
+    <link rel="stylesheet" href="styles.css?v=20260414e">
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#22d3ee">
@@ -333,73 +333,12 @@
     <!-- Confetti -->
     <div id="confetti" aria-hidden="true"></div>
 
-    <script src="app.js?v=20260414" charset="UTF-8"></script>
+    <script src="app.js?v=20260414b" charset="UTF-8"></script>
     <script>
         // ── PWA ──
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(() => {});
         }
-
-        // ── Backward-compat shims for app.js ──
-        // 1. .step-btn elements also get .step class (app.js queries .step)
-        document.querySelectorAll('.step-btn[data-step]').forEach(btn => btn.classList.add('step'));
-
-        // 2. .screen also gets .game-section class (app.js queries .game-section)
-        document.querySelectorAll('.screen').forEach(el => el.classList.add('game-section'));
-
-        // 3. .btn-cnt also gets .btn-count (older CSS compat)
-        document.querySelectorAll('.btn-cnt').forEach(el => el.classList.add('btn-count'));
-
-        // 4. challengeCard was removed – create a hidden stub so app.js doesn't crash
-        if (!document.getElementById('challengeCard')) {
-            const stub = document.createElement('div');
-            stub.id = 'challengeCard';
-            stub.style.display = 'none';
-            document.body.appendChild(stub);
-        }
-
-        // 5. Old .btn-timer-control → map to .timer-opt
-        document.querySelectorAll('.timer-opt').forEach(el => el.classList.add('btn-timer-control'));
-
-        // 6. Fix timer-opts class → timer-controls (app.js references .timer-controls)
-        const timerOptsEl = document.querySelector('.timer-opts');
-        if (timerOptsEl) timerOptsEl.classList.add('timer-controls');
-
-        // 7. card-badge class inside questionCard (app.js sets innerHTML with card-badge, card-content, card-text)
-        //    The new .q-card already handles this via CSS cascades – nothing to do.
-
-        // 8. Ensure q-text style matches card-text (app.js writes innerHTML with card-text class)
-        //    Add CSS alias dynamically
-        const aliasStyle = document.createElement('style');
-        aliasStyle.textContent = `
-            .card-text { font-size: clamp(1.05rem,4vw,1.32rem); font-weight:700; line-height:1.65; text-align:center; color:var(--c-txt); }
-            .card-emoji { display:block; font-size:2.5rem; margin-bottom:10px; text-align:center; }
-            .card-badge { position:absolute; top:14px; left:14px; padding:4px 13px; border-radius:999px; background:var(--g-brand); font-size:.68rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:white; box-shadow:0 4px 14px rgba(34,211,238,.3); }
-            .card-badge.special { background:var(--g-gold); box-shadow:0 4px 14px rgba(251,191,36,.3); }
-            .card-content { display:flex; flex-direction:column; align-items:center; justify-content:center; padding-top:10px; }
-            .result-card { padding:16px 10px; background:var(--c-card); border:1px solid var(--c-border); border-radius:var(--r-lg); text-align:center; }
-            .result-card.winner { background:var(--g-brand); border:none; transform:scale(1.05); box-shadow:0 8px 26px rgba(34,211,238,.35); }
-            .result-name { font-size:.88rem; font-weight:800; margin-bottom:6px; }
-            .result-score { font-size:2rem; font-weight:900; }
-            .winner-text { font-size:1.1rem; font-weight:800; color:var(--cyan); text-align:center; margin-bottom:8px; }
-            .winner-name { font-size:1.8rem; font-weight:900; text-align:center; background:var(--g-brand); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-            /* Old CSS variables used in app.js inline styles → keep working */
-            :root { --accent-2: var(--violet); --accent-3: var(--orange); --accent-4: var(--pink); --gradient-1: var(--g-brand); --gradient-2: var(--g-teal); }
-            /* punishment-section area */
-            .punishment-section { background:var(--c-card); border:1px solid var(--c-border); border-radius:var(--r-xl); padding:16px; margin-bottom:16px; }
-            .punishment-levels { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
-            /* turnPulse animation alias */
-            @keyframes turnPulse {
-                0%,100% { box-shadow:0 0 16px rgba(34,211,238,.18); }
-                50%      { box-shadow:0 0 32px rgba(34,211,238,.4); }
-            }
-            /* pulse alias used in timer */
-            @keyframes pulse {
-                0%,100% { transform:scale(1); }
-                50%      { transform:scale(1.1); }
-            }
-        `;
-        document.head.appendChild(aliasStyle);
     </script>
 </body>
 

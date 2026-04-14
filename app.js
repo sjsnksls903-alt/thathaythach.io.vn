@@ -205,8 +205,10 @@ async function fetchCustomQuestions() {
     }
 }
 
-// Fetch custom questions on page load
-fetchCustomQuestions();
+// Fetch custom questions on page load when the API is enabled
+if (API_CONFIG.enabled) {
+    fetchCustomQuestions();
+}
 
 const teamColors = ['#6366f1', '#ec4899', '#14b8a6', '#f59e0b'];
 
@@ -228,8 +230,8 @@ let gameState = {
 
 // ===== DOM ELEMENTS =====
 const elements = {
-    steps: document.querySelectorAll('.step'),
-    sections: document.querySelectorAll('.game-section'),
+    steps: document.querySelectorAll('.step-btn[data-step]'),
+    sections: document.querySelectorAll('.screen'),
     modeCards: document.querySelectorAll('.mode-card'),
     currentModeBadge: document.getElementById('currentModeBadge'),
     teamsContainer: document.getElementById('teamsContainer'),
@@ -238,7 +240,7 @@ const elements = {
     scoresDisplay: document.getElementById('scoresDisplay'),
     timerModal: document.getElementById('timerModal'),
     timerDisplay: document.getElementById('timerDisplay'),
-    challengeCard: document.getElementById('challengeCard'),
+    challengeCard: document.getElementById('challengeCard') || document.getElementById('questionCard'),
     questionCard: document.getElementById('questionCard'),
     specialCard: document.getElementById('specialCard'),
     resultsContainer: document.getElementById('resultsContainer'),
@@ -250,8 +252,66 @@ const elements = {
 // ===== INITIALIZATION =====
 function init() {
     setupEventListeners();
+    setupModalUX();
     generateTeamInputs();
     updateStepDisplay();
+    updateStartButtonState();
+}
+
+function updateStartButtonState() {
+    const startBtn = document.getElementById('startGame');
+    if (!startBtn) return;
+
+    const isReady = Boolean(gameState.selectedMode);
+    startBtn.disabled = !isReady;
+    startBtn.setAttribute('aria-disabled', String(!isReady));
+}
+
+function updateModalBodyState() {
+    document.body.classList.toggle('modal-open', Boolean(document.querySelector('.modal.active')));
+}
+
+function closeModalById(modalId) {
+    switch (modalId) {
+        case 'timerModal':
+            closeTimerModal();
+            break;
+        case 'scoreModal':
+            closeScoreModal();
+            break;
+        case 'contributeModal':
+            closeContributeModal();
+            break;
+        case 'historyModal':
+            closeHistoryModal();
+            break;
+        case 'punishmentModal':
+            document.getElementById('punishmentModal').classList.remove('active');
+            updateModalBodyState();
+            break;
+        default:
+            break;
+    }
+}
+
+function setupModalUX() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', event => {
+            if (event.target === modal) {
+                closeModalById(modal.id);
+            }
+        });
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+
+        const activeModals = Array.from(document.querySelectorAll('.modal.active'));
+        if (activeModals.length === 0) return;
+
+        const topModal = activeModals[activeModals.length - 1];
+        closeModalById(topModal.id);
+    });
 }
 
 function setupEventListeners() {
@@ -313,6 +373,7 @@ function selectMode(mode) {
         card.classList.toggle('selected', card.dataset.mode === mode);
     });
     elements.currentModeBadge.textContent = gameData[mode].name;
+    updateStartButtonState();
 }
 
 // ===== PLAYER MANAGEMENT =====
@@ -387,7 +448,7 @@ function updateCurrentPlayerDisplay() {
     if (indicator) {
         indicator.style.animation = 'none';
         indicator.offsetHeight; // Trigger reflow
-        indicator.style.animation = 'turnPulse 2s ease-in-out infinite';
+        indicator.style.animation = 'turnGlow 2.8s ease-in-out infinite';
     }
 }
 
@@ -397,10 +458,8 @@ function nextTurn() {
 
     // Reset question card to default state
     elements.questionCard.innerHTML = `
-        <div class="card-badge">Câu hỏi / Nhiệm vụ</div>
-        <div class="card-content">
-            <p class="card-text">Chọn Thật hoặc Thách để bắt đầu!</p>
-        </div>
+        <span class="q-badge">Câu hỏi / Nhiệm vụ</span>
+        <p class="q-text">Chọn Thật hoặc Thách để bắt đầu!</p>
     `;
 
     // Show toast for new turn
@@ -424,6 +483,8 @@ function updateStepDisplay() {
     // Update progress nav
     elements.steps.forEach((stepEl, index) => {
         stepEl.classList.remove('active', 'completed');
+        stepEl.setAttribute('aria-selected', String(index === gameState.currentStep));
+        stepEl.tabIndex = index === gameState.currentStep ? 0 : -1;
         if (index === gameState.currentStep) {
             stepEl.classList.add('active');
         } else if (index < gameState.currentStep) {
@@ -439,6 +500,10 @@ function updateStepDisplay() {
 
 // ===== RANDOM FUNCTIONS =====
 function getRandomItem(array, usedArray) {
+    if (!Array.isArray(array) || array.length === 0) {
+        return 'Chưa có nội dung cho mục này. Hãy thêm câu hỏi mới!';
+    }
+
     const available = array.filter((_, i) => !usedArray.includes(i));
     if (available.length === 0) {
         // Reset if all items used
@@ -455,10 +520,8 @@ function randomChallenge() {
     const challenge = getRandomItem(gameData[mode].challenges, gameState.usedChallenges);
 
     elements.challengeCard.innerHTML = `
-        <div class="card-content">
-            <span class="card-emoji">⚡</span>
-            <p class="card-text">${challenge}</p>
-        </div>
+        <span class="q-badge">Thử Thách</span>
+        <p class="q-text">${challenge}</p>
     `;
 
     animateCard(elements.challengeCard);
@@ -469,11 +532,8 @@ function randomQuestion() {
     const question = getRandomItem(gameData[mode].questions, gameState.usedQuestions);
 
     elements.questionCard.innerHTML = `
-        <div class="card-badge">Câu hỏi</div>
-        <div class="card-content">
-            <span class="card-emoji">🤔</span>
-            <p class="card-text">${question}</p>
-        </div>
+        <span class="q-badge">Câu hỏi</span>
+        <p class="q-text">${question}</p>
     `;
 
     animateCard(elements.questionCard);
@@ -485,11 +545,8 @@ function randomTask() {
     const task = getRandomItem(gameData[mode].tasks, gameState.usedTasks);
 
     elements.questionCard.innerHTML = `
-        <div class="card-badge" style="background: var(--accent-4)">Nhiệm vụ</div>
-        <div class="card-content">
-            <span class="card-emoji">🎭</span>
-            <p class="card-text">${task}</p>
-        </div>
+        <span class="q-badge" style="background: var(--orange)">Nhiệm vụ</span>
+        <p class="q-text">${task}</p>
     `;
 
     animateCard(elements.questionCard);
@@ -500,11 +557,8 @@ function randomSpecial() {
     const special = getRandomItem(gameData[mode].special, gameState.usedSpecial);
 
     elements.specialCard.innerHTML = `
-        <div class="card-badge special">⭐ Đặc Biệt</div>
-        <div class="card-content">
-            <span class="card-emoji">🌟</span>
-            <p class="card-text">${special}</p>
-        </div>
+        <span class="q-badge q-badge-special">⭐ Đặc Biệt</span>
+        <p class="q-text">${special}</p>
     `;
 
     animateCard(elements.specialCard);
@@ -519,14 +573,14 @@ function animateCard(card) {
 // ===== POWER-UPS =====
 function activateDoublePoints() {
     gameState.doublePointsActive = true;
-    document.getElementById('doublePoints').style.background = 'var(--accent-2)';
+    document.getElementById('doublePoints').style.background = 'var(--violet)';
     document.getElementById('doublePoints').style.color = 'white';
     document.getElementById('doublePoints').textContent = '✨ ĐANG KÍCH HOẠT x2';
 }
 
 function activateStealPoints() {
     gameState.stealPointsActive = true;
-    document.getElementById('stealPoints').style.background = 'var(--accent-3)';
+    document.getElementById('stealPoints').style.background = 'var(--orange)';
     document.getElementById('stealPoints').style.color = 'white';
     document.getElementById('stealPoints').textContent = '🔥 ĐANG KÍCH HOẠT';
     openScoreModal();
@@ -539,6 +593,7 @@ let timerRunning = false;
 
 function openTimerModal() {
     elements.timerModal.classList.add('active');
+    updateModalBodyState();
     elements.timerDisplay.textContent = timerDuration;
     elements.timerDisplay.classList.remove('warning');
     timerRunning = false;
@@ -547,6 +602,7 @@ function openTimerModal() {
 
 function closeTimerModal() {
     elements.timerModal.classList.remove('active');
+    updateModalBodyState();
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -557,7 +613,7 @@ function setTimerDuration(duration) {
     timerDuration = duration;
     elements.timerDisplay.textContent = duration;
 
-    document.querySelectorAll('.btn-timer-control').forEach(btn => {
+    document.querySelectorAll('.timer-opt').forEach(btn => {
         btn.classList.remove('active');
     });
     document.getElementById(`timer${duration}`).classList.add('active');
@@ -575,7 +631,12 @@ function startTimer() {
     timerRunning = true;
     document.getElementById('timerStart').textContent = '⏸️ Tạm Dừng';
 
-    let remaining = parseInt(elements.timerDisplay.textContent);
+    let remaining = parseInt(elements.timerDisplay.textContent, 10);
+    if (!Number.isFinite(remaining) || remaining <= 0) {
+        remaining = timerDuration;
+        elements.timerDisplay.textContent = remaining;
+        elements.timerDisplay.classList.remove('warning');
+    }
 
     timerInterval = setInterval(() => {
         remaining--;
@@ -592,7 +653,7 @@ function startTimer() {
             document.getElementById('timerStart').textContent = '🔄 Đặt Lại';
 
             // Play sound effect (visual only without actual audio)
-            elements.timerDisplay.style.animation = 'pulse 0.3s ease-in-out 3';
+            elements.timerDisplay.style.animation = 'numPulse 0.5s ease-in-out 3';
         }
     }, 1000);
 }
@@ -612,6 +673,7 @@ function updateScoreDisplay() {
 
 function openScoreModal() {
     elements.scoreModal.classList.add('active');
+    updateModalBodyState();
 
     const multiplier = gameState.doublePointsActive ? 2 : 1;
     const multiplierLabel = gameState.doublePointsActive ? ' (x2)' : '';
@@ -629,6 +691,7 @@ function openScoreModal() {
 
 function closeScoreModal() {
     elements.scoreModal.classList.remove('active');
+    updateModalBodyState();
     // Reset power-ups
     gameState.doublePointsActive = false;
     gameState.stealPointsActive = false;
@@ -651,6 +714,12 @@ function changeScore(teamIndex, delta) {
 
 // ===== RESULTS =====
 function showResults() {
+    if (!Array.isArray(gameState.teams) || gameState.teams.length === 0) {
+        elements.resultsContainer.innerHTML = '<div class="result-item">Chưa có dữ liệu người chơi.</div>';
+        elements.winnerAnnouncement.innerHTML = '';
+        return;
+    }
+
     // Stop background music and play victory fanfare
     audioSystem.stopBgMusic();
     playSound('victory');
@@ -660,17 +729,19 @@ function showResults() {
     const winningScore = sortedTeams[0].score;
 
     elements.resultsContainer.innerHTML = sortedTeams.map((team, index) => `
-        <div class="result-card ${team.score === winningScore ? 'winner' : ''}">
-            <div class="result-name" style="color: ${team.score === winningScore ? 'white' : team.color}">
-                ${team.score === winningScore ? '👑 ' : ''}${team.name}
-            </div>
+        <div class="result-item ${team.score === winningScore ? 'winner' : ''}">
+            <div class="result-rank">${team.score === winningScore ? '👑' : index + 1}</div>
+            <div class="result-name">${team.name}</div>
             <div class="result-score">${team.score}</div>
         </div>
     `).join('');
 
     elements.winnerAnnouncement.innerHTML = `
-        <div class="winner-text">🎉 Đội Chiến Thắng 🎉</div>
-        <div class="winner-name">${sortedTeams[0].name}</div>
+        <div class="winner-badge">
+            <div class="winner-emoji">🏆</div>
+            <div class="winner-lbl">Đội Chiến Thắng</div>
+            <div class="winner-name">${sortedTeams[0].name}</div>
+        </div>
     `;
 
     // Create confetti
@@ -719,29 +790,24 @@ function resetGame() {
     elements.modeCards.forEach(card => card.classList.remove('selected'));
     elements.currentModeBadge.textContent = 'Chọn phiên bản';
     elements.scorePanel.classList.remove('visible');
+    updateStartButtonState();
     generateTeamInputs();
     updateStepDisplay();
 
     // Reset cards
     elements.challengeCard.innerHTML = `
-        <div class="card-content">
-            <span class="card-emoji">🎯</span>
-            <p class="card-text">Nhấn "Bốc Thử Thách" để bắt đầu!</p>
-        </div>
+        <span class="q-badge">Thử Thách</span>
+        <p class="q-text">Nhấn "Bốc Thử Thách" để bắt đầu!</p>
     `;
 
     elements.questionCard.innerHTML = `
-        <div class="card-badge">Câu hỏi</div>
-        <div class="card-content">
-            <p class="card-text">Nhấn để bốc câu hỏi!</p>
-        </div>
+        <span class="q-badge">Câu hỏi</span>
+        <p class="q-text">Nhấn để bốc câu hỏi!</p>
     `;
 
     elements.specialCard.innerHTML = `
-        <div class="card-badge special">⭐ Đặc Biệt</div>
-        <div class="card-content">
-            <p class="card-text">Vòng cao trào!</p>
-        </div>
+        <span class="q-badge q-badge-special">⭐ Đặc Biệt</span>
+        <p class="q-text">Vòng cao trào!</p>
     `;
 }
 
@@ -953,18 +1019,10 @@ function playSound(type) {
     }
 }
 
-// Sound toggle button handler
-document.getElementById('toggleSound').addEventListener('click', () => {
-    const isMuted = audioSystem.toggle();
-    document.getElementById('toggleSound').textContent = isMuted ? '🔇' : '🔊';
-
-    // Also update localStorage preference
-    localStorage.setItem('soundMuted', isMuted);
-});
-
-// Load sound preference
-if (localStorage.getItem('soundMuted') === 'true') {
-    audioSystem.isMuted = true;
+// Load sound preference for background music state; the main toggle is handled below.
+const savedSoundMuted = localStorage.getItem('soundMuted') === 'true';
+audioSystem.isMuted = savedSoundMuted;
+if (savedSoundMuted) {
     document.getElementById('toggleSound').textContent = '🔇';
 }
 
@@ -1011,11 +1069,13 @@ function setupContributionListeners() {
 
 function openContributeModal() {
     contributeElements.modal.classList.add('active');
+    updateModalBodyState();
     updateContributionDisplay();
 }
 
 function closeContributeModal() {
     contributeElements.modal.classList.remove('active');
+    updateModalBodyState();
     contributeElements.contentInput.value = '';
 }
 
@@ -1251,20 +1311,22 @@ document.getElementById('startGame').removeEventListener('click', originalStartG
 document.getElementById('startGame').addEventListener('click', startGame);
 
 // Override random functions to add encouragement
-const originalRandomChallenge = randomChallenge;
-window.randomChallenge = randomChallenge = function () {
-    originalRandomChallenge();
-    contributionState.challengesCompleted++;
-    saveContributionState();
+const randomChallengeButton = document.getElementById('randomChallenge');
+if (randomChallengeButton) {
+    const originalRandomChallenge = randomChallenge;
+    window.randomChallenge = randomChallenge = function () {
+        originalRandomChallenge();
+        contributionState.challengesCompleted++;
+        saveContributionState();
 
-    // Show encouragement occasionally (30% chance)
-    if (Math.random() < 0.3) {
-        const enc = getRandomEncouragement('challenge');
-        setTimeout(() => showToast(enc.icon, enc.title, enc.message, 'encouragement'), 500);
-    }
-};
-document.getElementById('randomChallenge').removeEventListener('click', originalRandomChallenge);
-document.getElementById('randomChallenge').addEventListener('click', randomChallenge);
+        // Show encouragement occasionally (30% chance)
+        if (Math.random() < 0.3) {
+            const enc = getRandomEncouragement('challenge');
+            setTimeout(() => showToast(enc.icon, enc.title, enc.message, 'encouragement'), 500);
+        }
+    };
+    randomChallengeButton.addEventListener('click', randomChallenge);
+}
 
 const originalRandomQuestion = randomQuestion;
 window.randomQuestion = randomQuestion = function () {
@@ -1389,10 +1451,11 @@ function showPunishment(level) {
     punishmentText.textContent = punishment;
     punishmentText.style.color = colors[level];
     modal.classList.add('active');
+    updateModalBodyState();
 }
 
 // Setup punishment buttons
-document.querySelectorAll('.btn-punishment').forEach(btn => {
+document.querySelectorAll('.btn-punish').forEach(btn => {
     btn.addEventListener('click', () => {
         showPunishment(btn.dataset.level);
     });
@@ -1400,6 +1463,7 @@ document.querySelectorAll('.btn-punishment').forEach(btn => {
 
 document.getElementById('closePunishment').addEventListener('click', () => {
     document.getElementById('punishmentModal').classList.remove('active');
+    updateModalBodyState();
 });
 
 // ===== GAME HISTORY SYSTEM =====
@@ -1482,10 +1546,12 @@ function renderHistoryList() {
 function openHistoryModal() {
     renderHistoryList();
     document.getElementById('historyModal').classList.add('active');
+    updateModalBodyState();
 }
 
 function closeHistoryModal() {
     document.getElementById('historyModal').classList.remove('active');
+    updateModalBodyState();
 }
 
 function clearHistory() {
@@ -1573,12 +1639,15 @@ document.getElementById('toggleMCMode').addEventListener('click', toggleMCMode);
 document.getElementById('hideAnswerBtn').addEventListener('click', toggleAnswerVisibility);
 
 // ===== SOUND SYSTEM =====
-let soundEnabled = true;
+let soundEnabled = !savedSoundMuted;
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 const sounds = {
     click: { freq: 800, duration: 0.1 },
     success: { freq: [523, 659, 784], duration: 0.15 },
+    newTurn: { freq: [440, 554, 659], duration: 0.1 },
+    cardReveal: { freq: [300, 400, 500, 600, 700], duration: 0.08 },
+    victory: { freq: [523, 523, 523, 659, 784, 659, 784], duration: 0.2 },
     timer: { freq: 440, duration: 0.1 },
     timerEnd: { freq: [880, 440, 220], duration: 0.3 },
     punishment: { freq: [200, 150, 100], duration: 0.2 },
@@ -1616,15 +1685,20 @@ function playSound(type) {
 function toggleSound() {
     soundEnabled = !soundEnabled;
     const btn = document.getElementById('toggleSound');
+    audioSystem.isMuted = !soundEnabled;
 
     if (soundEnabled) {
         btn.textContent = '🔊';
         btn.classList.remove('muted');
         playSound('click');
+        localStorage.setItem('soundMuted', 'false');
+        audioSystem.startBgMusic();
         showToast('🔊', 'Âm Thanh', 'Đã bật âm thanh', 'success');
     } else {
         btn.textContent = '🔇';
         btn.classList.add('muted');
+        localStorage.setItem('soundMuted', 'true');
+        audioSystem.stopBgMusic();
     }
 }
 
@@ -1646,7 +1720,12 @@ window.startTimer = startTimer = function () {
     timerRunning = true;
     document.getElementById('timerStart').textContent = '⏸️ Tạm Dừng';
 
-    let remaining = parseInt(elements.timerDisplay.textContent);
+    let remaining = parseInt(elements.timerDisplay.textContent, 10);
+    if (!Number.isFinite(remaining) || remaining <= 0) {
+        remaining = timerDuration;
+        elements.timerDisplay.textContent = remaining;
+        elements.timerDisplay.classList.remove('warning');
+    }
 
     timerInterval = setInterval(() => {
         remaining--;
@@ -1663,7 +1742,7 @@ window.startTimer = startTimer = function () {
             elements.timerDisplay.textContent = '⏰';
             document.getElementById('timerStart').textContent = '🔄 Đặt Lại';
             playSound('timerEnd');
-            elements.timerDisplay.style.animation = 'pulse 0.3s ease-in-out 3';
+            elements.timerDisplay.style.animation = 'numPulse 0.5s ease-in-out 3';
         }
     }, 1000);
 };

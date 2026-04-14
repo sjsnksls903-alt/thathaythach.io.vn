@@ -59,6 +59,7 @@ body {
     font-family: 'Be Vietnam Pro', -apple-system, sans-serif;
     background: var(--c-bg);
     color: var(--c-txt);
+    line-height: 1.45;
     min-height: 100dvh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -67,6 +68,10 @@ body {
         radial-gradient(ellipse 65% 45% at 12% 4%,  rgba(34,211,238,.14) 0%, transparent 52%),
         radial-gradient(ellipse 55% 40% at 90% 10%, rgba(139,92,246,.15) 0%, transparent 50%),
         radial-gradient(ellipse 50% 38% at 50% 96%, rgba(52,211,153,.11) 0%, transparent 48%);
+}
+
+body.modal-open {
+    overflow: hidden;
 }
 
 /* Grid overlay */
@@ -238,6 +243,7 @@ body::before {
     cursor: pointer;
     padding: 4px 0;
     position: relative;
+    min-height: 44px;
 }
 
 .step-dot {
@@ -307,6 +313,117 @@ body::before {
 
 /* Step 0 has fixed bottom CTA, needs extra bottom padding */
 #step0 { padding-bottom: calc(var(--bottomcta-h) + var(--safe-bot) + 10px); }
+
+/* ============================================================
+   MICRO TYPOGRAPHY TUNING PER STEP
+   ============================================================ */
+#step0 .section-label {
+    letter-spacing: .1em;
+    margin-bottom: 12px;
+}
+
+#step0 .mode-name {
+    font-size: .93rem;
+    line-height: 1.28;
+}
+
+#step0 .mode-sub {
+    line-height: 1.38;
+}
+
+#step0 .count-label {
+    font-size: 1rem;
+    letter-spacing: .01em;
+}
+
+#step0 .team-input input {
+    font-size: .95rem;
+    line-height: 1.35;
+}
+
+#step0 .btn-start {
+    font-size: clamp(1.02rem, 3.1vw, 1.15rem);
+    letter-spacing: .02em;
+}
+
+#step1 .turn-name {
+    font-size: clamp(1.15rem, 4.6vw, 1.42rem);
+    line-height: 1.2;
+}
+
+#step1 .q-text {
+    max-width: 26ch;
+    margin-inline: auto;
+    font-size: clamp(1.12rem, 4.6vw, 1.4rem);
+    line-height: 1.72;
+    letter-spacing: .01em;
+}
+
+#step1 .td-label {
+    letter-spacing: .06em;
+}
+
+#step1 .btn-sec,
+#step1 .btn-advance {
+    font-size: .95rem;
+    line-height: 1.35;
+}
+
+#step2 .screen-title h2 {
+    font-size: clamp(1.45rem, 4.1vw, 1.8rem);
+    line-height: 1.14;
+}
+
+#step2 .screen-title p {
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+#step2 .q-text {
+    max-width: 28ch;
+    margin-inline: auto;
+    font-size: clamp(1.08rem, 4.2vw, 1.28rem);
+    line-height: 1.68;
+}
+
+#step2 .btn-power-up,
+#step2 .btn-draw,
+#step2 .btn-advance {
+    line-height: 1.35;
+    letter-spacing: .01em;
+}
+
+#step3 .winner-lbl {
+    letter-spacing: .04em;
+}
+
+#step3 .winner-name {
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    line-height: 1.15;
+}
+
+#step3 .result-name {
+    font-size: .95rem;
+    line-height: 1.36;
+}
+
+#step3 .result-score {
+    font-size: clamp(1.9rem, 5.8vw, 2.4rem);
+}
+
+#step3 .punishment-header {
+    font-size: .95rem;
+    line-height: 1.4;
+}
+
+#step3 .punishment-card,
+#step3 .punish-text {
+    line-height: 1.6;
+}
+
+#step3 .btn-replay {
+    letter-spacing: .015em;
+}
 
 @keyframes screenIn {
     from { opacity:0; transform:translateY(18px); }
@@ -545,6 +662,14 @@ body::before {
 .btn-start:hover  { transform:translateY(-3px); box-shadow:0 14px 38px rgba(52,211,153,.58); }
 .btn-start:active { transform:scale(.97) translateY(0); }
 .btn-start-icon { font-size:1.3rem; }
+.btn-start:disabled,
+.btn-start[aria-disabled="true"] {
+    opacity: .55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    filter: grayscale(.15);
+}
 
 /* ============================================================
    STEP 1 — TRUTH OR DARE SCREEN
@@ -1328,5 +1453,71 @@ button.btn-primary:active { transform:scale(.97); }
         animation-duration:.01ms !important;
         animation-iteration-count:1 !important;
         transition-duration:.01ms !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .score-panel {
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-height: 30vh;
+        bottom: calc(10px + var(--safe-bot));
+    }
+
+    .score-item {
+        padding: 9px 11px;
+    }
+
+    .btn-icon,
+    .btn-cnt,
+    .btn-score {
+        min-width: 40px;
+        min-height: 40px;
+    }
+}
+
+@media (min-width: 768px) {
+    .modal {
+        align-items: center;
+        padding: 20px;
+    }
+
+    .modal-box {
+        border-radius: var(--r-xl);
+        max-width: 620px;
+        padding: 30px 26px;
+    }
+
+    .modal-box::before {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    .app-main {
+        max-width: 1120px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .screen {
+        padding: 22px 20px;
+    }
+
+    .mode-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .players-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .score-panel {
+        width: 220px;
+        right: 24px;
+        max-height: 56vh;
     }
 }

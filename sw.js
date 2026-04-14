@@ -1,4 +1,4 @@
-const CACHE_NAME = 'game-thach-dau-v1';
+const CACHE_NAME = 'game-thach-dau-v3';
 const urlsToCache = [
     './',
     './index.html',
