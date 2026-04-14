@@ -1,7 +1,11 @@
-const CACHE_NAME = 'game-thach-dau-v4';
+const CACHE_NAME = 'game-thach-dau-v5';
 const urlsToCache = [
     './',
     './index.html',
+    './that-hay-thach-ban-be.html',
+    './that-hay-thach-cap-doi.html',
+    './that-hay-thach-team-building.html',
+    './that-hay-thach-tre-em.html',
     './favicon.svg',
     './styles.css',
     './app.js',

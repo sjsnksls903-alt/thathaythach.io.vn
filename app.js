@@ -254,8 +254,16 @@ function init() {
     setupEventListeners();
     setupModalUX();
     generateTeamInputs();
+    applyModeFromUrl();
     updateStepDisplay();
     updateStartButtonState();
+}
+
+function applyModeFromUrl() {
+    const modeFromUrl = new URLSearchParams(window.location.search).get('mode');
+    if (modeFromUrl && gameData[modeFromUrl]) {
+        selectMode(modeFromUrl);
+    }
 }
 
 function updateStartButtonState() {
